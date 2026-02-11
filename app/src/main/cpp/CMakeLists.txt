@@ -58,6 +58,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
     kitty.cpp
     jni_bridge.cpp
     LiveEffectEngine.cpp
+    jalv.cpp
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

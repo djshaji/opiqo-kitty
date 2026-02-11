@@ -14,6 +14,8 @@ public class AudioEngine {
     static native void delete();
 
     static native void test (String dir);
+
+    static native void setCacheDir(String path);
     static native void native_setDefaultStreamValues(int defaultSampleRate, int defaultFramesPerBurst);
 
     static void setDefaultStreamValues(Context context) {

@@ -51,6 +51,7 @@ public:
     bool setAudioApi(oboe::AudioApi);
     bool isAAudioRecommended(void);
 
+    std::string cacheDir ;
 private:
     bool              mIsEffectOn = false;
     int32_t           mRecordingDeviceId = oboe::kUnspecified;

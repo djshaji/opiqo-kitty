@@ -21,6 +21,7 @@
 #include <jalv/backend.h>
 #include <lilv/lilv.h>
 #include <fstream>
+#include "jalv.h"
 
 static const int kOboeApiAAudio = 0;
 static const int kOboeApiOpenSLES = 1;
@@ -198,10 +199,28 @@ Java_org_acoustixaudio_opiqo_opiqo_kitty_AudioEngine_test(JNIEnv *env, jclass cl
     Jalv jalv = {.backend = jalv_backend_allocate()};
     jalv_init(&jalv, 0, NULL);
 
+    jalv . temp_dir = strdup (engine -> cacheDir.c_str());
+
     LOGD ("[test] Initializing Jalv with plugin %s\n", lilv_node_as_uri(lilv_plugin_get_uri(plugin)));
-    if (jalv_open(&jalv, lilv_node_as_uri(lilv_plugin_get_uri(plugin))) == 0) {
+    if (jalv_open_(&jalv, lilv_node_as_uri(lilv_plugin_get_uri(plugin))) == 0) {
         LOGD ("[test] Jalv opened plugin successfully");
     } else {
         LOGD ("[test] Failed to open plugin with Jalv");
     }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_org_acoustixaudio_opiqo_opiqo_kitty_AudioEngine_setCacheDir(JNIEnv *env, jclass clazz,
+                                                                 jstring path) {
+    if (engine == nullptr) {
+        LOGE(
+            "Engine is null, you must call createEngine before calling this "
+            "method");
+        return;
+    }
+
+    engine->cacheDir = std::string (env->GetStringUTFChars(path, nullptr));
+    free((void*)env->GetStringUTFChars(path, nullptr));
+
 }
