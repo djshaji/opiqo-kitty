@@ -18,12 +18,22 @@
 #include "logging_macros.h"
 #include "LiveEffectEngine.h"
 #include <jalv/jalv.h>
+#include <jalv/backend.h>
 #include <lilv/lilv.h>
+#include <fstream>
 
 static const int kOboeApiAAudio = 0;
 static const int kOboeApiOpenSLES = 1;
 
 static LiveEffectEngine *engine = nullptr;
+
+std::string readFileToString(const std::string& path) {
+    std::ifstream ifs(path, std::ios::binary);
+    if (!ifs) throw std::runtime_error("Failed to open file: " + path);
+    std::ostringstream ss;
+    ss << ifs.rdbuf();
+    return ss.str();
+}
 
 extern "C" {
 
@@ -151,14 +161,47 @@ Java_org_acoustixaudio_opiqo_opiqo_kitty_AudioEngine_test(JNIEnv *env, jclass cl
     }
 
     LilvWorld* world = lilv_world_new();
-    LilvNode* lv2_path = lilv_new_file_uri(world, NULL, path.c_str());
-    LOGD ("[test] LV2 path set to %s", lilv_node_as_uri(lv2_path));
+    LOGD ("[test] LV2 path set to %s", path.c_str());
 
+    LilvNode* lv2_path = lilv_new_string(world, path.c_str());
     lilv_world_set_option(world, LILV_OPTION_LV2_PATH, lv2_path);
+    lilv_node_free(lv2_path);
+
     lilv_world_load_all(world);
+
     const LilvPlugins* plugins = lilv_world_get_all_plugins(world);
+
     LILV_FOREACH (plugins, i, plugins) {
         const LilvPlugin* p = lilv_plugins_get(plugins, i);
         LOGD("[test] plugin %s\n", lilv_node_as_uri(lilv_plugin_get_uri(p)));
+
+
+    }
+
+    LilvNode* plugin_uri = lilv_new_uri(world, "http://guitarix.sourceforge.net/plugins/gx_sloopyblue_#_sloopyblue_");
+    const LilvPlugin* plugin = lilv_plugins_get_by_uri(plugins, plugin_uri);
+    if (plugin == NULL) {
+        LOGD ("[test] Failed to find plugin");
+        return ;
+    }
+
+    LOGD ("[test] Found plugin [%s] %s\n", lilv_node_as_string(lilv_plugin_get_name(plugin)), lilv_node_as_uri(lilv_plugin_get_uri(plugin)));
+    LOGD ("[test] Plugin has %d ports\n", lilv_plugin_get_num_ports(plugin));
+
+    LilvInstance* instance = lilv_plugin_instantiate(plugin, 48000.0, NULL);
+    if (instance != NULL) {
+        LOGD("Ladies and Gentlemen we have liftoff") ;
+    } else {
+        LOGD ("[test] Failed to instantiate plugin");
+    }
+
+    Jalv jalv = {.backend = jalv_backend_allocate()};
+    jalv_init(&jalv, 0, NULL);
+
+    LOGD ("[test] Initializing Jalv with plugin %s\n", lilv_node_as_uri(lilv_plugin_get_uri(plugin)));
+    if (jalv_open(&jalv, lilv_node_as_uri(lilv_plugin_get_uri(plugin))) == 0) {
+        LOGD ("[test] Jalv opened plugin successfully");
+    } else {
+        LOGD ("[test] Failed to open plugin with Jalv");
     }
 }

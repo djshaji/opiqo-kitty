@@ -1,21 +1,3 @@
-#
-# Copyright (C) 2014 Guitarix project MOD project
-# 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-# --------------------------------------------------------------------------
-#
 
 
 @prefix doap: <http://usefulinc.com/ns/doap#> .
@@ -33,23 +15,24 @@
 	foaf:mbox <mailto:guitarix-developer@lists.sourceforge.net> ;
 	rdfs:seeAlso <http://guitarix.sourceforge.net> .
 
-<http://guitarix.sourceforge.net/plugins/gx_sloopyblue_>
+<http://guitarix.sourceforge.net/plugins/gx_bajatubedriver_>
 	a doap:Project ;
 	doap:maintainer <http://guitarix.sourceforge.net#me> ;
-	doap:name "Gx_sloopyblue_" .
+	doap:name "Gx_bajatubedriver_" .
 
-<http://guitarix.sourceforge.net/plugins/gx_sloopyblue_#_sloopyblue_>
+<http://guitarix.sourceforge.net/plugins/gx_bajatubedriver_#_bajatubedriver_>
     a lv2:Plugin ,
         lv2:DistortionPlugin ;
     doap:maintainer <http://guitarix.sourceforge.net#me> ;
-    doap:name "GxSloopyBlue";
+    doap:name "GxBaJaTubeDriver";
     doap:license <http://opensource.org/licenses/isc> ;
-    lv2:project <http://guitarix.sourceforge.net/plugins/gx_sloopyblue_> ;
+    lv2:project <http://guitarix.sourceforge.net/plugins/gx_bajatubedriver_> ;
     lv2:optionalFeature lv2:hardRTCapable ;
       
     lv2:minorVersion 35;
     lv2:microVersion 0;
 
+  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_bajatubedriver_gui#_bajatubedriver_>;
     
 rdfs:comment """
 
@@ -85,9 +68,9 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 3 ;
-        lv2:symbol "GAIN" ;
-        lv2:name "GAIN" ;
-        lv2:default 0.5 ;
+        lv2:symbol "DRIVE" ;
+        lv2:name "DRIVE" ;
+        lv2:default 0.34 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
     ]      , [
@@ -105,8 +88,17 @@ rdfs:comment """
         lv2:index 5 ;
         lv2:symbol "VOLUME" ;
         lv2:name "VOLUME" ;
-        lv2:default 0.5 ;
+        lv2:default 0.34 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
     ] .
 
+<http://guitarix.sourceforge.net/plugins/gx_bajatubedriver_gui#_bajatubedriver_>
+  a guiext:X11UI;
+  guiext:binary <gx_bajatubedriver_ui.so>;
+        lv2:extensionData guiext::idle ; 
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:idleInterface ;
+  .

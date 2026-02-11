@@ -1,6 +1,8 @@
 package org.acoustixaudio.opiqo.opiqo.kitty;
 
 import android.os.Bundle;
+import android.system.ErrnoException;
+import android.system.Os;
 import android.util.Log;
 import android.widget.Switch;
 
@@ -10,7 +12,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,21 +39,24 @@ public class MainActivity extends AppCompatActivity {
 
         AudioEngine.create();
         AudioEngine.setDefaultStreamValues(this);
-        String path = getApplicationInfo().nativeLibraryDir;
+//        String path = unzip();
+        String path = new StringBuilder ()
+                .append(getFilesDir()).append("/lv2").toString();
+        Log.d(TAG, "onCreate: [lv2 path] " + path);
+        copyAssetsToFiles("lv2");
+
         AudioEngine.test(path);
         File directory = new File(path);
+        listFilesRecursive(directory);
         File[] files = directory.listFiles();
-        Log.d(TAG, "onCreate: " + path + " ->" + files.length);
+        Log.d(TAG, "onCreate: [lv2 path] " + path + " ->" + files.length);
 
-        if (files != null) {
-            for (File file : files) {
-                // You can check if it's a file or a directory
-                Log.d(TAG, "onCreate: " + file.getName());
-            }
-        } else {
-            Log.d(TAG, "onCreate: null");
-        }
-
+//        String filename = "/data/user/0/org.acoustixaudio.opiqo.opiqo.kitty/files/lv2/gx_sloopyblue.lv2/manifest.ttl";
+//        try {
+//            Log.d(TAG, "onCreate: [test ex]" + readFileToString(new File(filename)));
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
 
         switch1.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
@@ -60,4 +69,172 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
     }
+
+    public String unzipLV2() {
+        File dir = new File(getFilesDir(), "lv2");
+        if (!dir.exists()) dir.mkdirs();
+        Log.d(TAG, "unzipLV2: " + dir.getAbsolutePath());
+
+        android.content.res.AssetManager am = getAssets();
+        try {
+            extractAssetRecursive(am, "lv2/sloopy.zip", dir);
+        } catch (java.io.IOException e) {
+            Log.e(TAG, "unzipLV2 failed", e);
+        }
+
+        return dir.getAbsolutePath();
+    }
+
+    public String unzip() {
+        File dir = new File(getFilesDir(), "lv2");
+        if (!dir.exists()) dir.mkdirs();
+        Log.d(TAG, "unzipLV2: " + dir.getAbsolutePath());
+
+        android.content.res.AssetManager am = getAssets();
+        try (java.io.InputStream is = am.open("lv2/sloopy.zip");
+             java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(is)) {
+
+            java.util.zip.ZipEntry entry;
+            byte[] buffer = new byte[8192];
+            while ((entry = zis.getNextEntry()) != null) {
+                File outFile = new File(dir, entry.getName());
+                if (entry.isDirectory()) {
+                    outFile.mkdirs();
+                } else {
+                    File parent = outFile.getParentFile();
+                    if (parent != null && !parent.exists()) parent.mkdirs();
+                    try (java.io.OutputStream os = new java.io.FileOutputStream(outFile)) {
+                        int read;
+                        while ((read = zis.read(buffer)) != -1) {
+                            os.write(buffer, 0, read);
+                        }
+                    }
+                }
+                zis.closeEntry();
+            }
+        } catch (java.io.IOException e) {
+            Log.e(TAG, "unzipLV2 failed", e);
+        }
+
+        return dir.getAbsolutePath();
+    }
+
+    private void extractAssetRecursive(android.content.res.AssetManager am, String assetPath, File outDir) throws java.io.IOException {
+        String[] list = am.list(assetPath);
+        if (list == null || list.length == 0) {
+            // It's a file; copy it
+            java.io.File outFile = new File(outDir, new File(assetPath).getName());
+            try (java.io.InputStream in = am.open(assetPath);
+                 java.io.OutputStream out = new java.io.FileOutputStream(outFile)) {
+                byte[] buffer = new byte[8192];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+            }
+        } else {
+            // It's a directory; create corresponding directory (skip creating extra top-level "lv2" folder)
+            File targetDir = outDir;
+            if (!"lv2".equals(assetPath)) {
+                targetDir = new File(outDir, new File(assetPath).getName());
+                targetDir.mkdirs();
+            }
+            for (String name : list) {
+                String childPath = assetPath + "/" + name;
+                extractAssetRecursive(am, childPath, targetDir);
+            }
+        }
+    }
+
+    private void listAllAssets() {
+        try {
+            android.content.res.AssetManager am = getAssets();
+            List<String> assetFiles = new ArrayList<>();
+            listAssetRecursive(am, "", assetFiles);
+            Log.d(TAG, "listAllAssets: total=" + assetFiles.size());
+            for (String a : assetFiles) {
+                Log.d(TAG, "asset: " + a);
+            }
+        } catch (java.io.IOException e) {
+            Log.e(TAG, "listAllAssets failed", e);
+        }
+    }
+
+    private void listAssetRecursive(android.content.res.AssetManager am, String path, List<String> out) throws java.io.IOException {
+        String[] list = am.list(path);
+        if (list == null || list.length == 0) {
+            if (!path.isEmpty()) {
+                out.add(path);
+            }
+        } else {
+            for (String name : list) {
+                String child = path.isEmpty() ? name : path + "/" + name;
+                listAssetRecursive(am, child, out);
+            }
+        }
+    }
+
+    private void listFilesRecursive(File dir) {
+        if (dir == null || !dir.exists()) return;
+        File[] entries = dir.listFiles();
+        if (entries == null) return;
+        for (File f : entries) {
+            if (f.isDirectory()) {
+                listFilesRecursive(f);
+            } else {
+                Log.d(TAG, "listFilesRecursive: " + dir.getAbsolutePath() + ":" + f.getAbsolutePath());
+            }
+        }
+    }
+
+    private String copyAssetsToFiles(String assetDir) {
+        File baseDir = getFilesDir();
+        try {
+            copyAssetDir(getAssets(), assetDir, baseDir);
+        } catch (java.io.IOException e) {
+            Log.e(TAG, "copyAssetsToFiles failed", e);
+        }
+
+        return baseDir.getAbsolutePath();
+    }
+
+    private void copyAssetDir(android.content.res.AssetManager am, String assetPath, File outDir) throws java.io.IOException {
+        String[] list = am.list(assetPath);
+        if (list == null || list.length == 0) {
+            // It's a file
+            String name = assetPath.contains("/") ? assetPath.substring(assetPath.lastIndexOf('/') + 1) : assetPath;
+            File outFile = new File(outDir, name);
+            try (java.io.InputStream in = am.open(assetPath);
+                 java.io.OutputStream out = new java.io.FileOutputStream(outFile)) {
+                byte[] buf = new byte[8192];
+                int r;
+                while ((r = in.read(buf)) != -1) {
+                    out.write(buf, 0, r);
+                }
+            }
+        } else {
+            // It's a directory
+            File targetDir = outDir;
+            if (!assetPath.isEmpty()) {
+                String name = assetPath.contains("/") ? assetPath.substring(assetPath.lastIndexOf('/') + 1) : assetPath;
+                targetDir = new File(outDir, name);
+                if (!targetDir.exists()) targetDir.mkdirs();
+            }
+            for (String name : list) {
+                String child = assetPath.isEmpty() ? name : assetPath + "/" + name;
+                copyAssetDir(am, child, targetDir);
+            }
+        }
+    }
+
+    public static String readFileToString(File file) throws IOException {
+        try (InputStream in = new FileInputStream(file);
+             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            byte[] buf = new byte[8192];
+            int r;
+            while ((r = in.read(buf)) != -1) out.write(buf, 0, r);
+            return out.toString("UTF-8");
+        }
+    }
 }
+

@@ -23,6 +23,9 @@ set_target_properties(libzix PROPERTIES IMPORTED_LOCATION
 add_library(libjack STATIC IMPORTED)
 set_target_properties(libjack PROPERTIES IMPORTED_LOCATION
     ${CMAKE_CURRENT_SOURCE_DIR}/../libs/${ANDROID_ABI}/libjack_static.a)
+add_library(libjackserver STATIC IMPORTED)
+set_target_properties(libjackserver PROPERTIES IMPORTED_LOCATION
+    ${CMAKE_CURRENT_SOURCE_DIR}/../libs/${ANDROID_ABI}/libjackserver_static.a)
 add_library(liblilv STATIC IMPORTED)
 set_target_properties(liblilv PROPERTIES IMPORTED_LOCATION
     ${CMAKE_CURRENT_SOURCE_DIR}/../libs/${ANDROID_ABI}/liblilv.a)
@@ -71,5 +74,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
         libsratom
         liblilv
         libjalv
-        libjalv
+        libjackserver
+        libjack
     log)

@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "org.acoustixaudio.opiqo.opiqo.kitty"
-        minSdk 31
+        minSdk 34
         targetSdk 36
         versionCode 1
         versionName "1.0"
@@ -41,6 +41,11 @@ android {
         cmake {
             path file('src/main/cpp/CMakeLists.txt')
             version '3.22.1'
+        }
+    }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
 }
