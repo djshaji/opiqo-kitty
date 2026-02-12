@@ -262,6 +262,7 @@ open_plugin_state(Jalv* const         jalv,
     const LilvPlugins* const plugins = lilv_world_get_all_plugins(world);
     LilvState*               state   = NULL;
 
+    LOGD("[open_plugin_state] Finding initial plugin state: %s", load_arg ? load_arg : "(none)");
     if (!load_arg) {
         // No URI or path given, open plugin selector
         LilvNode* const plugin_uri = jalv_frontend_select_plugin(world);
@@ -276,9 +277,11 @@ open_plugin_state(Jalv* const         jalv,
         if (serd_uri_string_has_scheme((const uint8_t*)arg)) {
             LilvNode* state_uri = lilv_new_uri(jalv->world, arg);
             state = lilv_state_new_from_world(jalv->world, urid_map, state_uri);
+            LOGD ("[open_plugin_state] lilv_state_new_from_world: %s\n", arg);
             lilv_node_free(state_uri);
         } else {
             state = lilv_state_new_from_file(jalv->world, urid_map, NULL, arg);
+            LOGD ("[open_plugin_state] lilv_state_new_from_file: %s\n", arg);
         }
 
         if (state) {
