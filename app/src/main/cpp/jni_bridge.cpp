@@ -180,6 +180,15 @@ Java_org_acoustixaudio_opiqo_opiqo_kitty_AudioEngine_test(JNIEnv *env, jclass cl
 
     }
 
+    LV2Plugin * lv2Plugin = new LV2Plugin(world, "http://guitarix.sourceforge.net/plugins/gx_sloopyblue_#_sloopyblue_", 48000., 4096);
+    lv2Plugin->initialize();
+    lv2Plugin->start();
+    engine -> plugin = lv2Plugin ;
+    lv2Plugin->getControl("GAIN")->setValue(0.f);
+    lv2Plugin->getControl("VOLUME")->setValue(0.f);
+    lv2Plugin->getControl("TONE")->setValue(0.f);
+    return ;
+
     LilvNode* plugin_uri = lilv_new_uri(world, "http://guitarix.sourceforge.net/plugins/gx_sloopyblue_#_sloopyblue_");
     const LilvPlugin* plugin = lilv_plugins_get_by_uri(plugins, plugin_uri);
     if (plugin == NULL) {
@@ -190,7 +199,7 @@ Java_org_acoustixaudio_opiqo_opiqo_kitty_AudioEngine_test(JNIEnv *env, jclass cl
     LOGD ("[test] Found plugin [%s] %s\n", lilv_node_as_string(lilv_plugin_get_name(plugin)), lilv_node_as_uri(lilv_plugin_get_uri(plugin)));
     LOGD ("[test] Plugin has %d ports\n", lilv_plugin_get_num_ports(plugin));
 
-    LilvInstance* instance = lilv_plugin_instantiate(plugin, 48000.0, NULL);
+    LilvInstance* instance = lilv_plugin_instantiate(plugin, 48000.0, nullptr);
     if (instance != NULL) {
         LOGD("Ladies and Gentlemen we have liftoff") ;
     } else {

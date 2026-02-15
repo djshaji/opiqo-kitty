@@ -48,12 +48,12 @@ public:
 //             outputFloats += samplesPerFrame;
         }
 
-//        if (!plugin->process(const_cast<float *>(outputFloats), outputFloats, samplesToProcess))
-//            abort();
+        if (!plugin->process(const_cast<float *>(inputFloats), outputFloats, samplesToProcess))
+            abort();
 
-        lilv_instance_connect_port(instance, 0, const_cast<float *>(outputFloats));
-        lilv_instance_connect_port(instance, 1, (void *) inputFloats);
-        lilv_instance_run(instance, samplesToProcess);
+//        lilv_instance_connect_port(instance, 0, const_cast<float *>(outputFloats));
+//        lilv_instance_connect_port(instance, 1, (void *) inputFloats);
+//        lilv_instance_run(instance, samplesToProcess);
         // If there are fewer input samples then clear the rest of the buffer.
         int32_t samplesLeft = numOutputSamples - numInputSamples;
         for (int32_t i = 0; i < samplesLeft; i++) {

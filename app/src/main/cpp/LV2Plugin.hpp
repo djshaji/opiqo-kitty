@@ -46,8 +46,6 @@
 #include <vector>
 #include <variant>
 
-#include "logging_macros.h"
-
 // ============================================================================
 // PluginControl - Abstract Base Class & Factory
 // ============================================================================
@@ -309,15 +307,26 @@ private:
 
 class LV2Plugin {
 public:
-    LilvWorld* world_;
-    LilvPlugin* plugin_;
-    LilvInstance* instance_;
-
     // Constructor: caller provides discovered Lilv world and plugin
     LV2Plugin(LilvWorld* world, LilvPlugin* plugin, double sample_rate, uint32_t max_block_length)
         : world_(world), plugin_(plugin), sample_rate_(sample_rate),
           max_block_length_(max_block_length), instance_(nullptr),
           required_atom_size_(8192), shutdown_(false) {
+    }
+
+    // Constructor: resolve plugin by URI from an existing Lilv world
+    LV2Plugin(LilvWorld* world, const char* plugin_uri, double sample_rate, uint32_t max_block_length)
+        : world_(world), plugin_(nullptr), sample_rate_(sample_rate),
+          max_block_length_(max_block_length), instance_(nullptr),
+          required_atom_size_(8192), shutdown_(false) {
+        if (world_ && plugin_uri) {
+            const LilvPlugins* plugins = lilv_world_get_all_plugins(world_);
+            LilvNode* uri = lilv_new_uri(world_, plugin_uri);
+            if (uri) {
+                plugin_ = const_cast<LilvPlugin*>(lilv_plugins_get_by_uri(plugins, uri));
+                lilv_node_free(uri);
+            }
+        }
     }
 
     ~LV2Plugin() {
@@ -823,7 +832,9 @@ private:
         LV2_Feature opt_f { LV2_OPTIONS__options, options };
 
         LV2_Feature* feats[] = { &features_.um_f, &features_.unm_f, &opt_f,
-                                &features_.bbl_feature, &host_worker_.feature, nullptr };
+                    &features_.bbl_feature, &features_.map_path_feature,
+                    &features_.make_path_feature, &features_.free_path_feature,
+                    &host_worker_.feature, nullptr };
 
         if (!checkFeatures(feats)) return false;
 
@@ -976,6 +987,9 @@ private:
     }
 
     // ========== Member variables ==========
+    LilvWorld* world_;
+    LilvPlugin* plugin_;
+    LilvInstance* instance_;
 
     LilvNode *audio_class_, *control_class_, *atom_class_, *input_class_, *rsz_minimumSize_;
 
