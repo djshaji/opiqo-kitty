@@ -397,7 +397,13 @@ jalv_open_(Jalv* const jalv, const char* const load_arg)
     // Find the initial state (and thereby the plugin URI)
     LilvState* state = open_plugin_state(jalv, urid_map, load_arg);
     if (!state || !jalv->plugin) {
+        LOGD ("[todo] Failed to open state\n");
         return -2;
+    }
+
+    if (!jalv->plugin) {
+        LOGD ("No plugin selected\n");
+        return -3;
     }
 
     LOGD (

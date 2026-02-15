@@ -17,8 +17,12 @@
 #ifndef SAMPLES_FULLDUPLEXPASS_H
 #define SAMPLES_FULLDUPLEXPASS_H
 
+#include "LV2Plugin.hpp"
+
 class FullDuplexPass : public oboe::FullDuplexStream {
 public:
+    LV2Plugin* plugin;
+    LilvInstance *instance;
     virtual oboe::DataCallbackResult
     onBothStreamsReady(
             const void *inputData,
@@ -39,9 +43,17 @@ public:
         // It is possible that there may be fewer input than output samples.
         int32_t samplesToProcess = std::min(numInputSamples, numOutputSamples);
         for (int32_t i = 0; i < samplesToProcess; i++) {
-            *outputFloats++ = *inputFloats++ * 0.95; // do some arbitrary processing
+//            *outputFloats++ = *inputFloats++ * 0.95; // do some arbitrary processing
+//             inputFloats += samplesPerFrame;
+//             outputFloats += samplesPerFrame;
         }
 
+//        if (!plugin->process(const_cast<float *>(outputFloats), outputFloats, samplesToProcess))
+//            abort();
+
+        lilv_instance_connect_port(instance, 0, const_cast<float *>(outputFloats));
+        lilv_instance_connect_port(instance, 1, (void *) inputFloats);
+        lilv_instance_run(instance, samplesToProcess);
         // If there are fewer input samples then clear the rest of the buffer.
         int32_t samplesLeft = numOutputSamples - numInputSamples;
         for (int32_t i = 0; i < samplesLeft; i++) {

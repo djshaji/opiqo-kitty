@@ -52,6 +52,9 @@ public:
     bool isAAudioRecommended(void);
 
     std::string cacheDir ;
+    std::unique_ptr<FullDuplexPass> mDuplexStream;
+    LV2Plugin * plugin = nullptr;
+    LilvInstance *instance = nullptr;
 private:
     bool              mIsEffectOn = false;
     int32_t           mRecordingDeviceId = oboe::kUnspecified;
@@ -62,7 +65,6 @@ private:
     const int32_t     mInputChannelCount = oboe::ChannelCount::Stereo;
     const int32_t     mOutputChannelCount = oboe::ChannelCount::Stereo;
 
-    std::unique_ptr<FullDuplexPass> mDuplexStream;
     std::shared_ptr<oboe::AudioStream> mRecordingStream;
     std::shared_ptr<oboe::AudioStream> mPlayStream;
 

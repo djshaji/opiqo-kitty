@@ -22,6 +22,7 @@
 #include <lilv/lilv.h>
 #include <fstream>
 #include "jalv.h"
+#include "LV2Plugin.hpp"
 
 static const int kOboeApiAAudio = 0;
 static const int kOboeApiOpenSLES = 1;
@@ -196,17 +197,38 @@ Java_org_acoustixaudio_opiqo_opiqo_kitty_AudioEngine_test(JNIEnv *env, jclass cl
         LOGD ("[test] Failed to instantiate plugin");
     }
 
-    Jalv jalv = {.backend = jalv_backend_allocate()};
-    jalv_init(&jalv, 0, NULL);
+    engine -> instance = instance;
+    for (int i = 0 ; i < lilv_plugin_get_num_ports(plugin); i++) {
+        const LilvPort* port = lilv_plugin_get_port_by_index(plugin, i);
+        LOGD ("[test] Port %d: %s\n", i, lilv_node_as_string(lilv_port_get_symbol(plugin, port)));
+        if (!lilv_port_is_a(plugin, port, lilv_new_uri(world, LV2_CORE__AudioPort))) {
+            float * d = static_cast<float *>(malloc(sizeof(float)));
+            lilv_instance_connect_port(instance, i, d);
+            LOGD ("[test] Connected control port %d to %p [%s]\n", i, d, lilv_node_as_string(
+                    lilv_port_get_name(plugin, port)));
+            LilvNode * min = lilv_new_float(world, 0.0f);
+            LilvNode * max = lilv_new_float(world, 0.0f);
+            LilvNode * def = lilv_new_float(world, 0.0f);
+            lilv_port_get_range(plugin, port, &def, &min, &max);
+            LOGD ("[test] Port %d range: min=%f max=%f default=%f\n", i, lilv_node_as_float(min),
+                  lilv_node_as_float(max), lilv_node_as_float(def));
+            switch (i) {
+                case 2:
+                    *d = 0.f;
+                    break;
+                case 3:
+                case 4:
+                case 5:
+                    *d = 1.f;
+                    break;
+                default:
+//                    *d = 0.0f;
 
-    jalv . temp_dir = strdup (engine -> cacheDir.c_str());
-
-    LOGD ("[test] Initializing Jalv with plugin %s\n", lilv_node_as_uri(lilv_plugin_get_uri(plugin)));
-    if (jalv_open_(&jalv, lilv_node_as_uri(lilv_plugin_get_uri(plugin))) == 0) {
-        LOGD ("[test] Jalv opened plugin successfully");
-    } else {
-        LOGD ("[test] Failed to open plugin with Jalv");
+            }
+        }
     }
+
+    lilv_instance_activate(instance);
 }
 
 extern "C"
