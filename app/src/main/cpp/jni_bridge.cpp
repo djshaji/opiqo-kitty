@@ -187,6 +187,9 @@ Java_org_acoustixaudio_opiqo_opiqo_kitty_AudioEngine_test(JNIEnv *env, jclass cl
     lv2Plugin->getControl("GAIN")->setValue(0.f);
     lv2Plugin->getControl("VOLUME")->setValue(0.f);
     lv2Plugin->getControl("TONE")->setValue(0.f);
+//    lv2Plugin->ports_.at(3).control = 1.f;
+    lv2Plugin->ports_.at(4).control = 0.4f;
+//    lv2Plugin->ports_.at(5).control = 0.f;
     return ;
 
     LilvNode* plugin_uri = lilv_new_uri(world, "http://guitarix.sourceforge.net/plugins/gx_sloopyblue_#_sloopyblue_");
@@ -254,4 +257,33 @@ Java_org_acoustixaudio_opiqo_opiqo_kitty_AudioEngine_setCacheDir(JNIEnv *env, jc
     engine->cacheDir = std::string (env->GetStringUTFChars(path, nullptr));
     free((void*)env->GetStringUTFChars(path, nullptr));
 
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_org_acoustixaudio_opiqo_opiqo_kitty_AudioEngine_setValue(JNIEnv *env, jclass clazz, jint index,
+                                                              jfloat value) {
+    if (engine == nullptr) {
+        LOGE(
+                "Engine is null, you must call createEngine before calling this "
+                "method");
+        return;
+    }
+
+    switch (index) {
+        case 0:
+            engine->plugin->ports_.at(2).control = value;
+            break;
+        case 1:
+            engine->plugin->ports_.at(3).control = value;
+            break;
+        case 2:
+            engine->plugin->ports_.at(4).control = value;
+            break;
+        case 3:
+            engine->plugin->ports_.at(5).control = value;
+            break;
+        default:
+            LOGE("Unknown control index %d", index);
+
+    }
 }

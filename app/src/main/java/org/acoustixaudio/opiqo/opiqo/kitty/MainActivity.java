@@ -5,12 +5,15 @@ import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.android.material.slider.Slider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -67,6 +70,30 @@ public class MainActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        Slider slider = findViewById(R.id.slider1);
+        slider.addOnChangeListener((s, value, fromUser) -> {
+            if (fromUser) {
+                AudioEngine.setValue(1, value / 100f);
+            }
+        });
+        Slider slider2 = findViewById(R.id.slider2);
+        slider2.addOnChangeListener((s, value, fromUser) -> {
+            if (fromUser) {
+                AudioEngine.setValue(2, value / 100f);
+            }
+        });
+        Slider slider3 = findViewById(R.id.slider3);
+        slider3.addOnChangeListener((s, value, fromUser) -> {
+            if (fromUser) {
+                AudioEngine.setValue(3, value / 100f);
+            }
+        });
+
+        TextView about = findViewById(R.id.meow);
+        about.setOnClickListener(v -> {
+            startActivity(new android.content.Intent(this, About.class));
         });
     }
 

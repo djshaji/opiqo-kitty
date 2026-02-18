@@ -2,7 +2,12 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.OpiqoKitty" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+         <item name="colorPrimary">#F5A1C5</item>
+            <item name="colorPrimaryVariant">#FF52F2</item>
+            <item name="colorOnPrimary">#FFFFFF</item>
+            <item name="colorSecondary">#FF52F2</item>
+            <item name="colorSecondaryVariant">#FF52F2</item>
+            <item name="colorOnSecondary">#FFFFFF</item>
     </style>
 
     <style name="Theme.OpiqoKitty" parent="Base.Theme.OpiqoKitty" />

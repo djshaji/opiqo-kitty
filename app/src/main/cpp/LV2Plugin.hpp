@@ -858,8 +858,10 @@ private:
         // Connect control and atom ports
         for (auto& p : ports_) {
             if (p.is_audio) continue;
-            if (p.is_control)
+            if (p.is_control) {
                 lilv_instance_connect_port(instance_, p.index, &p.control);
+                LOGD ("[%s] Connected control port %u to value %f", lilv_node_as_string(lilv_plugin_get_name(plugin_)), p.index, p.control);
+            }
             if (p.is_atom)
                 lilv_instance_connect_port(instance_, p.index, p.atom);
         }
@@ -997,7 +999,9 @@ private:
     uint32_t max_block_length_;
     uint32_t required_atom_size_;
 
+public:
     std::vector<Port> ports_;
+private:
     std::vector<PluginControl*> controls_;
 
     LV2HostWorker host_worker_;
