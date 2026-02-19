@@ -1,14 +1,19 @@
 package org.acoustixaudio.opiqo.opiqo.kitty;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -32,13 +37,14 @@ public class MainActivity extends AppCompatActivity {
 
     boolean effectsEnabled = false;
     private String TAG = "[main]";
+    Switch switch1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        Switch switch1 = findViewById(R.id.switch1);
+        switch1 = findViewById(R.id.switch1);
 
         AudioEngine.create();
         AudioEngine.setDefaultStreamValues(this);
@@ -62,8 +68,10 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
         switch1.setOnCheckedChangeListener((buttonView, isChecked) -> {
-
-            AudioEngine.setEffectOn(isChecked);
+            if (!(ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED))
+                requestAudioPermission();
+            else
+                AudioEngine.setEffectOn(isChecked);
         });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -263,5 +271,53 @@ public class MainActivity extends AppCompatActivity {
             return out.toString("UTF-8");
         }
     }
+
+
+
+    private void requestAudioPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.RECORD_AUDIO},
+                    1);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Audio permission granted");
+                if (switch1.isChecked()) {
+                    AudioEngine.setEffectOn(true);
+                }
+
+                Toast.makeText(this, "Audio permission granted", Toast.LENGTH_SHORT).show();
+            } else {
+                Log.d(TAG, "Audio permission denied");
+                Toast.makeText(this, "Audio permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (switch1.isChecked()) {
+            switch1.setChecked(false);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (switch1.isChecked()) {
+            switch1.setChecked(false);
+        }
+
+    }
+
+
 }
 
