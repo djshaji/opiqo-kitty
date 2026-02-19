@@ -1,7 +1,11 @@
 # opiqo-kitty
 <img width="512" height="512" alt="list" src="https://github.com/user-attachments/assets/e37ffa61-18db-4ca3-9349-7d2fdbeafdaa" />
 
-This is a _port_ of [GxSloopyBlue.lv2](https://github.com/brummer10/GxSloopyBlue.lv2) by the legendary [brummer10](https://github.com/brummer10) We love you Hermann
+
+This is a _port_ of [GxSloopyBlue.lv2](https://github.com/brummer10/GxSloopyBlue.lv2) by the legendary [brummer10](https://github.com/brummer10) 
+
+We love you Hermann 💙
+ 
 Classic Blues Overdrive for Android
 ______________________________________
 Bring a warm, touch‑responsive overdrive to your Android device. opiqo Kitty is inspired by a legendary blues pedal and delivers everything from edge‑of‑clean sparkle to thick, singing sustain. It reacts to your picking dynamics like a real amp, making it perfect for blues, rock, and expressive lead playing.
