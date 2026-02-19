@@ -6,11 +6,11 @@ This is a _port_ of [GxSloopyBlue.lv2](https://github.com/brummer10/GxSloopyBlue
 
 We love you Hermann 💙
  
-Classic Blues Overdrive for Android
+## Classic Blues Overdrive for Android
 ______________________________________
 Bring a warm, touch‑responsive overdrive to your Android device. opiqo Kitty is inspired by a legendary blues pedal and delivers everything from edge‑of‑clean sparkle to thick, singing sustain. It reacts to your picking dynamics like a real amp, making it perfect for blues, rock, and expressive lead playing.
 
-Highlights
+## Highlights
 _______________
 - Classic blues overdrive character
 - Smooth, amp‑like breakup with touch sensitivity
@@ -18,15 +18,15 @@ _______________
 - Simple, familiar controls for fast dialing
 - Great for practice, recording, and live rigs
 ______________________________________________
-Who it’s for
+## Who it’s for
 Players who want a musical, responsive drive that cleans up with your volume knob and blooms when you dig in.
 _______________________________________________
-Notes
+## Notes
 Requires an audio interface or compatible input method for best results
 Latency depends on your device and audio setup
 _______________________________________________
 
-But what is opiqo really?
+# But what is opiqo really?
 opiqo is actually a new LV2 Host Platform Prototype which will power the next generation of Acoustix audio guitar effect pedals.
 
 It is built as an LV2 plugin host using standard libraries, focusing on stability, portability, and modern audio workflows. The app demonstrates a clean, responsive signal path and a solid foundation for hosting LV2 effects on mobile. This prototype explores a scalable architecture for hosting LV2 plugins on mobile devices, with emphasis on reliable audio handling and future expansion.
