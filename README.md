@@ -1,4 +1,5 @@
 # opiqo-kitty
+<img width="512" height="512" alt="list" src="https://github.com/user-attachments/assets/e37ffa61-18db-4ca3-9349-7d2fdbeafdaa" />
 
 ## Overview
 Android app that uses a native audio engine (C++/JNI) with Oboe and bundled LV2 tooling to load and run audio effects.
